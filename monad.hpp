@@ -31,6 +31,9 @@ namespace monad
             }
     };
 
+    template<class A>
+    constexpr auto make_io_action(A&& action);
+
     template<class A, class B>
     class io
     {
@@ -41,6 +44,17 @@ namespace monad
         constexpr A operator()() const
             {
                 return invoke(m_action);
+            }
+        template<class C>
+        auto bind(const C& io_generator)
+            {
+                auto this_action = m_action;
+                return make_io_action(
+                    [this_action, io_generator]()
+                    {
+                        const auto x{invoke(this_action)};
+                        return io_generator(x)();
+                    });
             }
     private:
         B m_action;

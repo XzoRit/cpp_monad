@@ -6,18 +6,26 @@ using namespace monad;
 
 const auto putCout = [](const auto& s)
 {
-    return make_io_action([s](){ cout << s; return monostate{}; });
+    return make_io_action(
+        [s](){ cout << s; return monostate{}; });
 };
 
-const auto getCout = []()
+const auto getCout = [](const auto&)
 {
-    string s{};
-    getline(cin, s);
-    return s;
+    return make_io_action(
+        [](){ string s{}; getline(cin, s); return s; });
 };
+
+auto test()
+{
+    return putCout("your name please: ")
+        .bind(getCout)
+        .bind([](const auto& a){ return putCout(string{"Hello "} + a + "!\n"); })
+        ;
+}
 
 int main()
 {
-    putCout("Hello\n")();
+    test()();
     return 0;
 }
