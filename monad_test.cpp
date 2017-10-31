@@ -50,16 +50,16 @@ namespace monad
             {}
         constexpr A operator()() const
             {
-                return m_action();
+                return invoke(m_action);
             }
     private:
         B m_action;
     };
 
     template<class A>
-    constexpr auto make_io_action(const A& action)
+    constexpr auto make_io_action(A&& action)
     {
-        return io<decltype(action()), A>{action};
+        return io<decltype(action()), A>{forward<A>(action)};
     }
 }
 
