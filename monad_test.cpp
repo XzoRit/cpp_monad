@@ -1,6 +1,6 @@
 #include "monad.hpp"
 #include <boost/test/unit_test.hpp>
-#include <string>
+#include <variant>
 #include <iostream>
 
 namespace std
@@ -27,18 +27,6 @@ struct init
 using namespace std;
 using namespace monad;
 
-const auto putCout = [](const auto& s)
-{
-    return make_io_action([s](){ cout << s; return monostate{}; });
-};
-
-const auto getCout = []()
-{
-    string s{};
-    getline(cin, s);
-    return s;
-};
-
 BOOST_AUTO_TEST_SUITE(monad)
 
 BOOST_FIXTURE_TEST_CASE(monad_lazy_value, init)
@@ -51,12 +39,9 @@ BOOST_FIXTURE_TEST_CASE(monad_lazy_value, init)
 
 BOOST_FIXTURE_TEST_CASE(monad_io_monostate, init)
 {
-    const auto a = make_io_action([](){ cout << "a"; return monostate{}; });
+    const auto a = make_io_action([](){ return monostate{}; });
 
     BOOST_TEST(a() == monostate{});
-
-    BOOST_TEST(putCout("b")() == monostate{});
-    BOOST_TEST(putCout( 1 )() == monostate{});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
