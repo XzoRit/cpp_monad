@@ -3,11 +3,23 @@
 #include <mutex>
 #include <optional>
 #include <utility>
+#include <variant>
+#include <iostream>
+#include <string>
+
+namespace std
+{
+    ostream& boost_test_print_type(ostream& ostr, monostate const& right)
+    {
+        ostr << "monostate";
+        return ostr;
+    }
+}
+
+using namespace std;
 
 namespace monad
 {
-    using namespace std;
-
     template <class A>
     class lazy_value
     {
@@ -28,6 +40,27 @@ namespace monad
                 return *m_value;
             }
     };
+
+    template<class A, class B>
+    class io
+    {
+    public:
+        io(const B& action)
+            : m_action{action}
+            {}
+        const A operator()() const
+            {
+                return m_action();
+            }
+    private:
+        B m_action;
+    };
+
+    template<class A>
+    auto make_io_action(const A& action)
+    {
+        return io<decltype(action()), A>{action};
+    }
 }
 
 struct init
@@ -42,15 +75,31 @@ struct init
     }
 };
 
-BOOST_AUTO_TEST_SUITE(vector)
+using namespace monad;
+
+const auto putCout = [](const auto& s)
+{
+    return make_io_action([s](){ cout << s; return monostate{}; });
+};
+
+BOOST_AUTO_TEST_SUITE(monad)
 
 BOOST_FIXTURE_TEST_CASE(monad_lazy_value, init)
 {
-    using namespace monad;
-    const auto a = lazy_value([](){ return 2374; });
+    const auto a = lazy_value{[](){ return 2374; }};
 
     BOOST_TEST(a() == 2374);
     BOOST_TEST(a() == 2374);
+}
+
+BOOST_FIXTURE_TEST_CASE(monad_io_monostate, init)
+{
+    const auto a = make_io_action([](){ cout << "a"; return monostate{}; });
+
+    BOOST_TEST(a() == monostate{});
+
+    BOOST_TEST(putCout("b")() == monostate{});
+    BOOST_TEST(putCout( 1 )() == monostate{});
 }
 
 BOOST_AUTO_TEST_SUITE_END()
