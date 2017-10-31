@@ -1,0 +1,12 @@
+import boost ;
+
+boost.use-project ;
+
+import testing ;
+
+run [ glob *_test.cpp ] main.cpp
+    : <testing.arg>"--log_level=error" "--log_sink=stdout"
+    :
+    : <use>/boost//headers
+    : test_cpp_monad
+    ;
