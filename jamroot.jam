@@ -7,6 +7,6 @@ import testing ;
 run [ glob *_test.cpp ] main.cpp
     : <testing.arg>"--log_level=error" "--log_sink=stdout"
     :
-    : <use>/boost//headers
+    : <cxxflags>-std=c++17 <use>/boost//headers
     : test_cpp_monad
     ;
