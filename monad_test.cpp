@@ -44,4 +44,15 @@ BOOST_FIXTURE_TEST_CASE(monad_io_monostate, init)
     BOOST_TEST(a() == monostate{});
 }
 
+BOOST_FIXTURE_TEST_CASE(monad_io_bind, init)
+{
+    const auto a =
+        make_io_action([](){ return 1; })
+        .bind([](const auto& a){ return make_io_action([a](){ return a + 2; }); })
+        .bind([](const auto& a){ return make_io_action([a](){ return a + 3; }); })
+        ;
+
+    BOOST_TEST(a() == 6);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
