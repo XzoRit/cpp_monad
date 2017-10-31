@@ -53,6 +53,14 @@ BOOST_FIXTURE_TEST_CASE(monad_io_bind, init)
         ;
 
     BOOST_TEST(a() == 6);
+
+    const auto b =
+        make_io_action([](){ return string{"1"}; })
+        | [](const auto& a){ return make_io_action([a](){ return a + "2"; }); }
+        | [](const auto& a){ return make_io_action([a](){ return a + "3"; }); }
+        ;
+
+    BOOST_TEST(b() == "123");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

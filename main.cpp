@@ -19,8 +19,8 @@ const auto getCout = [](const auto&)
 auto test()
 {
     return putCout("your name please: ")
-        .bind(getCout)
-        .bind([](const auto& a){ return putCout(string{"Hello "} + a + "!\n"); })
+        | getCout
+        | [](const auto& a){ return putCout(string{"Hello "} + a + "!\n"); }
         ;
 }
 
