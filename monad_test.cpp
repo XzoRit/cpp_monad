@@ -28,11 +28,11 @@ namespace monad
         mutable optional<decltype(m_func())> m_value;
         mutable mutex m_lock_value;
     public:
-        lazy_value(const A& func)
+        constexpr lazy_value(const A& func)
             : m_func{func}
             , m_value{}
             {}
-        auto operator()() const
+        constexpr auto operator()() const
             {
                 lock_guard<mutex> _(m_lock_value);
                 if(!m_value) m_value = invoke(m_func);
@@ -45,10 +45,10 @@ namespace monad
     class io
     {
     public:
-        io(const B& action)
+        constexpr io(const B& action)
             : m_action{action}
             {}
-        const A operator()() const
+        constexpr A operator()() const
             {
                 return m_action();
             }
@@ -57,7 +57,7 @@ namespace monad
     };
 
     template<class A>
-    auto make_io_action(const A& action)
+    constexpr auto make_io_action(const A& action)
     {
         return io<decltype(action()), A>{action};
     }
