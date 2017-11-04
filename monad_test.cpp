@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <variant>
 #include <iostream>
+#include <cctype>
 
 namespace std
 {
@@ -26,6 +27,14 @@ struct init
 
 using namespace std;
 using namespace monad;
+
+std::string str_toupper(std::string s)
+{
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [](unsigned char c){ return std::toupper(c); }
+        );
+    return s;
+}
 
 BOOST_AUTO_TEST_SUITE(monad)
 
@@ -61,6 +70,27 @@ BOOST_FIXTURE_TEST_CASE(monad_io_bind, init)
         ;
 
     BOOST_TEST(b() == "123");
+}
+
+BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
+{
+    const auto a =
+        make_io_action([](){ return string{"a"}; })
+        .fmap([](const auto& a){ return  a + "b"; })
+        .fmap([](const auto& a){ return  a + "c"; })
+        .fmap([](const auto& a){ return str_toupper(a); })
+        ;
+
+    BOOST_TEST(a() == "ABC");
+
+    const auto b =
+        make_io_action([](){ return string{"a"}; })
+        > [](const auto& a){ return  a + "b"; }
+        > [](const auto& a){ return  a + "c"; }
+        > [](const auto& a){ return str_toupper(a); }
+        ;
+
+    BOOST_TEST(b() == "ABC");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
