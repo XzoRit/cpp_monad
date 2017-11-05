@@ -28,12 +28,15 @@ struct init
 using namespace std;
 using namespace monad;
 
-std::string str_toupper(std::string s)
+string str_toupper(string a)
 {
-    std::transform(s.begin(), s.end(), s.begin(),
-                   [](unsigned char c){ return std::toupper(c); }
+    transform(
+        a.begin(), a.end(),
+        a.begin(),
+        [](unsigned char c)
+        { return toupper(c); }
         );
-    return s;
+    return a;
 }
 
 BOOST_AUTO_TEST_SUITE(monad)
@@ -78,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
         make_io_action([](){ return string{"a"}; })
         .fmap([](const auto& a){ return  a + "b"; })
         .fmap([](const auto& a){ return  a + "c"; })
-        .fmap([](const auto& a){ return str_toupper(a); })
+        .fmap(str_toupper)
         ;
 
     BOOST_TEST(a() == "ABC");
@@ -87,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
         make_io_action([](){ return string{"a"}; })
         > [](const auto& a){ return  a + "b"; }
         > [](const auto& a){ return  a + "c"; }
-        > [](const auto& a){ return str_toupper(a); }
+        > str_toupper
         ;
 
     BOOST_TEST(b() == "ABC");
