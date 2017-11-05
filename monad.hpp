@@ -34,14 +34,14 @@ namespace monad
     template<class A>
     constexpr auto make_io_action(A&& action);
 
-    template<class A, class B>
+    template<class A>
     class io;
 
-    template<class A, class B>
+    template<class A>
     class io
     {
     public:
-        constexpr io(const B& action)
+        constexpr io(const function<A()>& action)
             : m_action{action}
             {}
         constexpr A operator()() const
@@ -77,13 +77,13 @@ namespace monad
                 return this->fmap(func);
             }
     private:
-        B m_action;
+        function<A()> m_action;
     };
 
     template<class A>
     constexpr auto make_io_action(A&& action)
     {
-        return io<decltype(action()), A>{forward<A>(action)};
+        return io<decltype(action())>{forward<A>(action)};
     }
 
     template<class A>

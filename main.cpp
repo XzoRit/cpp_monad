@@ -45,9 +45,38 @@ auto test()
         ;
 }
 
+auto ask(int i)
+{
+    return putCout("is less then? ")
+        | [i](const auto&){ return putCout(i); }
+        | [](const auto&){ return putCout("(y/n) ?"); }
+        | getCout
+        | [](const auto& a){ return pure(a == "y"); }
+        ;
+}
+
+io<int> guess(int a, int b)
+{
+    if(a >= b) return pure(a);
+    int m = (a + b + 1) / 2;
+    return ask(m)
+        | [a, m, b](const auto& yes)
+          {
+              if(yes) return guess(a, m - 1);
+              else return guess(m, b);
+          }
+        ;
+}
+
 int main()
 {
-    const auto a{test()};
-    a();
+    {
+        const auto a{guess(0, 10)};
+        a();
+    }
+    {
+        const auto a{test()};
+        a();
+    }
     return 0;
 }
