@@ -49,7 +49,7 @@ namespace monad
                 return invoke(m_action);
             }
         template<class C>
-        constexpr auto bind(const C& io_generator) const
+        constexpr auto bind(C io_generator) const
             {
                 return make_io_action(
                     [*this, io_generator]()
@@ -58,7 +58,7 @@ namespace monad
                     });
             }
         template<class C>
-        constexpr auto fmap(const C& func) const
+        constexpr auto fmap(C func) const
             {
                 return make_io_action(
                     [*this, func]()
@@ -67,12 +67,12 @@ namespace monad
                     });
             }
         template<class C>
-        constexpr auto operator|(const C& io_generator) const
+        constexpr auto operator|(C io_generator) const
             {
                 return this->bind(io_generator);
             }
         template<class C>
-        constexpr auto operator>(const C& func) const
+        constexpr auto operator>(C func) const
             {
                 return this->fmap(func);
             }
