@@ -85,5 +85,11 @@ namespace monad
     {
         return io<decltype(action()), A>{forward<A>(action)};
     }
+
+    template<class A>
+    constexpr auto pure(A val)
+    {
+        return make_io_action([val](){ return val; });
+    }
 }
 

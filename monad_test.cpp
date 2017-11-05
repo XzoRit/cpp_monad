@@ -96,4 +96,11 @@ BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
     BOOST_TEST(b() == "ABC");
 }
 
+BOOST_FIXTURE_TEST_CASE(monad_io_pure, init)
+{
+    const auto a = pure(string{"abc"});
+
+    BOOST_TEST(a() == "abc");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
