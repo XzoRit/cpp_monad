@@ -26,7 +26,6 @@ struct init
 };
 
 using namespace std;
-using namespace monad;
 
 string str_toupper(string a)
 {
@@ -43,6 +42,8 @@ BOOST_AUTO_TEST_SUITE(monad)
 
 BOOST_FIXTURE_TEST_CASE(monad_lazy_value, init)
 {
+    using namespace monad;
+
     const auto a = lazy_value{[](){ return 2374; }};
 
     BOOST_TEST(a() == 2374);
@@ -51,7 +52,7 @@ BOOST_FIXTURE_TEST_CASE(monad_lazy_value, init)
 
 BOOST_FIXTURE_TEST_CASE(monad_io_monostate, init)
 {
-    const auto a = make_io_action([](){ return monostate{}; });
+    const auto a = monad::io::make_action([](){ return monostate{}; });
 
     BOOST_TEST(a() == monostate{});
 }
@@ -59,17 +60,17 @@ BOOST_FIXTURE_TEST_CASE(monad_io_monostate, init)
 BOOST_FIXTURE_TEST_CASE(monad_io_bind, init)
 {
     const auto a =
-        make_io_action([](){ return 1; })
-        .bind([](const auto& a){ return make_io_action([a](){ return a + 2; }); })
-        .bind([](const auto& a){ return make_io_action([a](){ return a + 3; }); })
+        monad::io::make_action([](){ return 1; })
+        .bind([](const auto& a){ return monad::io::make_action([a](){ return a + 2; }); })
+        .bind([](const auto& a){ return monad::io::make_action([a](){ return a + 3; }); })
         ;
 
     BOOST_TEST(a() == 6);
 
     const auto b =
-        make_io_action([](){ return string{"1"}; })
-        | [](const auto& a){ return make_io_action([a](){ return a + "2"; }); }
-        | [](const auto& a){ return make_io_action([a](){ return a + "3"; }); }
+        monad::io::make_action([](){ return string{"1"}; })
+        | [](const auto& a){ return monad::io::make_action([a](){ return a + "2"; }); }
+        | [](const auto& a){ return monad::io::make_action([a](){ return a + "3"; }); }
         ;
 
     BOOST_TEST(b() == "123");
@@ -78,7 +79,7 @@ BOOST_FIXTURE_TEST_CASE(monad_io_bind, init)
 BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
 {
     const auto a =
-        make_io_action([](){ return string{"a"}; })
+        monad::io::make_action([](){ return string{"a"}; })
         .fmap([](const auto& a){ return  a + "b"; })
         .fmap([](const auto& a){ return  a + "c"; })
         .fmap(str_toupper)
@@ -87,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
     BOOST_TEST(a() == "ABC");
 
     const auto b =
-        make_io_action([](){ return string{"a"}; })
+        monad::io::make_action([](){ return string{"a"}; })
         > [](const auto& a){ return  a + "b"; }
         > [](const auto& a){ return  a + "c"; }
         > str_toupper
@@ -98,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(monad_io_fmap, init)
 
 BOOST_FIXTURE_TEST_CASE(monad_io_pure, init)
 {
-    const auto a = pure(string{"abc"});
+    const auto a = monad::io::pure(string{"abc"});
 
     BOOST_TEST(a() == "abc");
 }

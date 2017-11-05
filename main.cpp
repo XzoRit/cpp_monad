@@ -5,17 +5,16 @@
 #include <variant>
 
 using namespace std;
-using namespace monad;
 
 const auto putCout = [](const auto& s)
 {
-    return make_io_action(
+    return monad::io::make_action(
         [s](){ cout << s; return monostate{}; });
 };
 
 auto getCout(const monostate&)
 {
-    return make_io_action(
+    return monad::io::make_action(
         []()
         {
             string s{};
@@ -51,13 +50,13 @@ auto ask(int i)
         | [i](const auto&){ return putCout(i); }
         | [](const auto&){ return putCout("(y/n) ?"); }
         | getCout
-        | [](const auto& a){ return pure(a == "y"); }
+        | [](const auto& a){ return monad::io::pure(a == "y"); }
         ;
 }
 
-io<int> guess(int a, int b)
+monad::io::action<int> guess(int a, int b)
 {
-    if(a >= b) return pure(a);
+    if(a >= b) return monad::io::pure(a);
     int m = (a + b + 1) / 2;
     return ask(m)
         | [a, m, b](const auto& yes)

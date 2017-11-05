@@ -30,19 +30,20 @@ namespace monad
                 return *m_value;
             }
     };
+namespace io
+{
+    template<class A>
+    constexpr auto make_action(A&& action);
 
     template<class A>
-    constexpr auto make_io_action(A&& action);
+    class action;
 
     template<class A>
-    class io;
-
-    template<class A>
-    class io
+    class action
     {
     public:
-        constexpr io(const function<A()>& action)
-            : m_action{action}
+        constexpr action(const function<A()>& act)
+            : m_action{act}
             {}
         constexpr A operator()() const
             {
@@ -51,7 +52,7 @@ namespace monad
         template<class C>
         constexpr auto bind(C io_generator) const
             {
-                return make_io_action(
+                return make_action(
                     [*this, io_generator]()
                     {
                         return io_generator(invoke(m_action))();
@@ -60,7 +61,7 @@ namespace monad
         template<class C>
         constexpr auto fmap(C func) const
             {
-                return make_io_action(
+                return make_action(
                     [*this, func]()
                     {
                         return func(invoke(m_action));
@@ -81,15 +82,16 @@ namespace monad
     };
 
     template<class A>
-    constexpr auto make_io_action(A&& action)
+    constexpr auto make_action(A&& act)
     {
-        return io<decltype(action())>{forward<A>(action)};
+        return action<decltype(act())>{forward<A>(act)};
     }
 
     template<class A>
     constexpr auto pure(A val)
     {
-        return make_io_action([val](){ return val; });
+        return make_action([val](){ return val; });
     }
+}
 }
 
