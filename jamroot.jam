@@ -12,6 +12,7 @@ exe cpp_monad
 run [ glob *_test.cpp ]
     : <testing.arg>"--log_level=error" "--log_sink=stdout"
     :
-    : <cxxflags>-std=c++17 <use>/boost//headers
+    : <cxxflags>-std=c++17
+      <use>/boost//headers
     : test_cpp_monad
     ;
