@@ -3,10 +3,7 @@
 #include <mutex>
 #include <optional>
 #include <utility>
-#include <variant>
 #include <functional>
-
-using namespace std;
 
 namespace monad
 {
@@ -15,8 +12,8 @@ namespace monad
     {
     private:
         A m_func;
-        mutable optional<decltype(m_func())> m_value;
-        mutable mutex m_lock_value;
+        mutable std::optional<decltype(m_func())> m_value;
+        mutable std::mutex m_lock_value;
     public:
         constexpr lazy_value(const A& func)
             : m_func{func}
@@ -24,8 +21,8 @@ namespace monad
             {}
         auto operator()() const
             {
-                lock_guard<mutex> _(m_lock_value);
-                if(!m_value) m_value = invoke(m_func);
+                std::lock_guard<std::mutex> _(m_lock_value);
+                if(!m_value) m_value = std::invoke(m_func);
 
                 return *m_value;
             }
@@ -42,12 +39,12 @@ namespace io
     class action
     {
     public:
-        constexpr action(const function<A()>& act)
+        constexpr action(const std::function<A()>& act)
             : m_action{act}
             {}
         constexpr A operator()() const
             {
-                return invoke(m_action);
+                return std::invoke(m_action);
             }
         template<class C>
         constexpr auto bind(C io_generator) const
@@ -55,7 +52,7 @@ namespace io
                 return make_action(
                     [*this, io_generator]()
                     {
-                        return io_generator(invoke(m_action))();
+                        return io_generator(std::invoke(m_action))();
                     });
             }
         template<class C>
@@ -64,7 +61,7 @@ namespace io
                 return make_action(
                     [*this, func]()
                     {
-                        return func(invoke(m_action));
+                        return func(std::invoke(m_action));
                     });
             }
         template<class C>
@@ -78,13 +75,13 @@ namespace io
                 return this->fmap(func);
             }
     private:
-        function<A()> m_action;
+        std::function<A()> m_action;
     };
 
     template<class A>
     constexpr auto make_action(A&& act)
     {
-        return action<decltype(act())>{forward<A>(act)};
+        return action<decltype(act())>{std::forward<A>(act)};
     }
 
     template<class A>
