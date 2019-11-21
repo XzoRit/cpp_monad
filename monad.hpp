@@ -22,7 +22,7 @@ namespace monad
             : m_func{func}
             , m_value{}
             {}
-        constexpr auto operator()() const
+        auto operator()() const
             {
                 lock_guard<mutex> _(m_lock_value);
                 if(!m_value) m_value = invoke(m_func);
