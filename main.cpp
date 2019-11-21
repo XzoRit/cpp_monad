@@ -34,7 +34,7 @@ string str_tolower(string a)
     return a;
 }
 
-auto test()
+auto your_name_please()
 {
     return
         (putCout("your name please: ") | getCout)
@@ -74,7 +74,7 @@ int main()
         a();
     }
     {
-        const auto a{test()};
+        const auto a{your_name_please()};
         a();
     }
     return 0;
